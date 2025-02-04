@@ -39,6 +39,8 @@ static uint32_t tap_anim_timer  = 0;
 uint8_t current_idle_frame = 0;
 uint8_t current_tap_frame  = 0;
 
+static bool oled_sleep_enabled = false;
+
 // ------------------------------------------------------
 // Animation bitmaps
 // (Exactly as you provided: idle[], prep[], tap[] ...)
@@ -658,21 +660,26 @@ static void animation_phase(void) {
 // and handles both the OLED sleep logic and the call to animation_phase().
 // ------------------------------------------------------
 static void oled_render_anim(void) {
-    // If we’re typing above IDLE_SPEED, keep the OLED awake
-    // and reset the “anim_sleep” timer.
-    if (get_current_wpm() > IDLE_SPEED) {
-        oled_on();
-        anim_sleep = timer_read32();  // reset inactivity timer
-    } else {
-        // If we’re *not* typing and the inactivity timer has elapsed, turn off.
-        if (timer_elapsed32(anim_sleep) > oled_timeout) {
-            oled_off();
-            return; // No need to animate anything if the screen is off
+     // If OLED sleep is enabled, use the usual logic.
+    if (oled_sleep_enabled) {
+        // If we’re typing above IDLE_SPEED, keep the OLED awake
+        // and reset the “anim_sleep” timer.
+        if (get_current_wpm() > IDLE_SPEED) {
+            oled_on();
+            anim_sleep = timer_read32();  // reset inactivity timer
+        } else {
+            // If we’re *not* typing and the inactivity timer has elapsed, turn off.
+            if (timer_elapsed32(anim_sleep) > oled_timeout) {
+                oled_off();
+                return; // No need to animate if the screen is off
+            }
         }
+    } else {
+        // If OLED sleep is disabled, always turn the OLED on.
+        oled_on();
     }
 
     // Now check if it’s time to call animation_phase() again.
-    // We do this at some regular “tick” interval (ANIM_CALL_INTERVAL).
     if (timer_elapsed32(anim_timer) > ANIM_CALL_INTERVAL) {
         anim_timer = timer_read32();
         animation_phase();
