@@ -110,7 +110,9 @@ enum custom_keycodes {
     CURLIES = SAFE_RANGE,
     SQUARES,
     BRACKETS,
-    BACKTICKS,
+    BACKTICK,
+    ARROW,
+    ARROW_FN,
 };
 
 tap_dance_action_t tap_dance_actions[] = {
@@ -150,7 +152,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3(
     HMRW,          KC_Q,    KC_W,   KC_E,   KC_R,      KC_T,           KC_Y,    KC_U,       KC_I,      KC_O,     KC_P,      TERMINAL,
     _______,       CTL_A,   ALT_S,  CMD_D,  SFT_F,     KC_G,           KC_H,    SFT_J,      CMD_K,     ALT_L,    CTL_QUOTE, KC_SCLN,
-    SAVE,          KC_Z,    KC_X,   KC_C,   KC_V,      KC_B,           KC_N,    KC_M,       KC_COMM,   KC_DOT,   KC_SLSH,   BACKTICKS, /*KC_ENT*/
+    SAVE,          KC_Z,    KC_X,   KC_C,   KC_V,      KC_B,           KC_N,    KC_M,       KC_COMM,   KC_DOT,   KC_SLSH,   BACKTICK, /*KC_ENT*/
                                   MEDI_ESC,  NAV_SPC,  TIL_TAB,        SYM_ENT,  NUM_BSP,  FUN_DEL
 
   ),
@@ -239,9 +241,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 */
   [_SYM] = LAYOUT_split_3x6_3(
-    BACKTICKS,  KC_PIPE,  KC_AMPR,  KC_ASTR,  KC_BSLS,  SQUARES,         _______, _______, _______, _______, _______, KC_BSPC,
-    _______,    KC_COLN,  KC_DLR,   KC_PERC,  KC_CIRC,  BRACKETS,        _______, KC_LSFT,  KC_LGUI,  KC_LALT,  KC_LCTL, _______,
-    _______,    KC_TILD,  KC_EXLM,  KC_AT,    KC_HASH,  CURLIES,         _______, _______, _______, _______, _______, _______,
+    BACKTICK,  KC_PIPE,  KC_AMPR,  KC_ASTR,  KC_BSLS,  SQUARES,         _______, _______, _______, _______, _______, KC_BSPC,
+    ARROW,     KC_COLN,  KC_DLR,   KC_PERC,  KC_CIRC,  BRACKETS,        _______, KC_LSFT,  KC_LGUI,  KC_LALT,  KC_LCTL, _______,
+    ARROW_FN,  KC_TILD,  KC_EXLM,  KC_AT,    KC_HASH,  CURLIES,         _______, _______, _______, _______, _______, _______,
                                     KC_SCLN,  KC_PMNS,  KC_UNDS,               _______, _______, _______
   ),
 
@@ -267,7 +269,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______,  KC_SLSH, KC_1,   KC_2,    KC_3,  KC_PPLS,      _______, _______, _______, _______, _______, _______,
                                KC_DOT,  KC_0,  KC_COMM,      _______, _______, _______
   ),
-
 
 
 /*
@@ -398,10 +399,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code(KC_LEFT);
               }
               return false;
-        case BACKTICKS:
+        case BACKTICK:
               if (record->event.pressed) {
-                SEND_STRING("``");
-                tap_code(KC_LEFT);
+                SEND_STRING("`");
+              }
+              return false;
+        case ARROW:
+              if (record->event.pressed) {
+                SEND_STRING("=>");
+              }
+              return false;
+        case ARROW_FN:
+              if (record->event.pressed) {
+                SEND_STRING("()=>");
               }
               return false;
     }
